@@ -1,0 +1,21 @@
+trigger Create_Checklists on Case (after insert, after update) {
+    List<Template__c> temp = [SELECT Type__c,Action_Name__c,Action_Description__c,Action_Order__c,Days__c FROM Template__c ORDER BY Action_Order__c ASC];
+    List<Checklist__c> checklist = new List<Checklist__c>();
+    for (Case c : trigger.new) {
+        Double i = 0;
+        for (Template__c t : temp) {
+            if (c.Type == t.Type__c) {
+                Checklist__c d = new Checklist__c();
+                d.Case__c = c.Id;
+                d.Action_Name__c = t.Action_Name__c;
+                d.Action_Description__c = t.Action_Description__c;
+                d.Action_Order__c = t.Action_Order__c;
+                d.Start_Date__c = c.CreatedDate + i;
+                i = i + t.Days__c;
+                d.End_Date__c = c.CreatedDate + i;
+                checklist.add(d);
+            }
+        }
+    }
+    insert checklist;
+}
