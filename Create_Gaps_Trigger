@@ -1,0 +1,18 @@
+trigger Create_Gaps on Checklist__c (after insert) {
+	List<Gap_Template__c> gTemp = [SELECT Id,Name,Template__c FROM Gap_Template__c];
+    List<Template__c> temp = [SELECT Id,Name FROM Template__c];
+    List<Gap__c> gaps = new List<Gap__c>();
+    for (Checklist__c c : trigger.new) {
+        for (Gap_Template__c g : gTemp) {
+            for (Template__c t : temp) {
+                if (g.Template__c == t.Id) {
+                    Gap__c f = new Gap__c();
+                    f.Checklist__c = c.Id;
+                    f.Name = g.Name;
+                    gaps.add(f);
+            	}
+            }    
+    	}
+    }
+    insert gaps;
+}
