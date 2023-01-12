@@ -1,0 +1,18 @@
+trigger Create_Recommendations on Gap__c (after insert) {
+	List<Recommendation_Template__c> rTemp = [SELECT Id,Name,Gap_Template__c FROM Recommendation_Template__c];
+    List<Gap_Template__c> gTemp = [SELECT Id,Name FROM Gap_Template__c];
+    List<Recommendation__c> recs = new List<Recommendation__c>();
+    for (Gap__c g : trigger.new) {
+        for (Recommendation_Template__c r : rTemp) {
+            for (Gap_Template__c gt : gTemp) {
+                if (r.Gap_Template__c == gt.Id) {
+                    Recommendation__c f = new Recommendation__c();
+                    f.Gap__c = g.Id;
+                    f.Name = r.Name;
+                    recs.add(f);
+            	}
+            }    
+    	}
+    }
+    insert recs;
+}
